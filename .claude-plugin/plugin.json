@@ -3,5 +3,6 @@
   "version": "0.1.0",
   "description": "Capture 'Today I Learned' memos from Claude Code sessions",
   "author": { "name": "qaTororo" },
+  "license": "MIT",
   "keywords": ["til", "learning", "blog", "knowledge-capture"]
 }
