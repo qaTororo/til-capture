@@ -1,6 +1,6 @@
 {
   "name": "til-capture",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Capture 'Today I Learned' memos from Claude Code sessions",
   "author": { "name": "qaTororo" },
   "license": "MIT",
