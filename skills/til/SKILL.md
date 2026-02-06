@@ -23,14 +23,31 @@ allowed-tools: Read, Write, Glob, Grep, Bash(date:*), Bash(mkdir:*)
 - 調査で分かった事実、仕様、ベストプラクティス
 - 失敗から得た教訓
 
-### 2. 保存先の検出
+### 2. 保存先の解決
 
-Glob を使って以下の順で TIL ディレクトリを検索:
-1. `src/content/til/` （Astro/Starlight）
-2. `content/til/` （汎用CMS）
-3. `til/` （シンプル構成）
+以下の順序で保存先を決定する。**Glob での無制限検索は行わないこと。**
 
-**見つからない場合**: ユーザーに保存先を質問する。
+#### Step 1: CWD 内のプロジェクトディレクトリ
+以下の3つのパスを CWD からの相対パスで**順に**存在確認する:
+
+1. `{CWD}/src/content/til/`
+2. `{CWD}/content/til/`
+3. `{CWD}/til/`
+
+最初に見つかったディレクトリを使用する。
+
+#### Step 2: config.json の defaultTilDir
+Step 1 で見つからない場合、`~/.config/til-capture/config.json` を Read で読み取る。
+`defaultTilDir` フィールドが設定されている場合、そのパスを使用する。
+- ディレクトリが**存在する**場合: そのまま保存（高信頼）
+- ディレクトリが**存在しない**場合: ユーザーに確認してから `mkdir -p` で作成（低信頼）
+
+ファイルが存在しないまたは読み取りエラーの場合は無視して次へ。
+
+#### Step 3: フォールバック
+Step 1, 2 で保存先が決まらない場合、`~/til/` を候補とする。
+**必ずユーザーに保存先を確認してから保存すること。** 確認なしに `mkdir -p` で作成してはならない。
+（`~/.config/til-capture/config.json` で `defaultTilDir` を設定するよう案内する）
 
 ### 3. ファイル生成
 

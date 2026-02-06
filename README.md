@@ -7,6 +7,7 @@ Claude Code セッション中の「学び」を TIL (Today I Learned) メモと
 - **自動検知**: WebSearch/WebFetch を使った調査後、Stop 時に自動で TIL 記録を提案
 - **手動記録**: `/til-capture:til` コマンドでいつでも TIL を記録
 - **ストック表示**: セッション開始時に既存 TIL 数をリマインド
+- **保存先設定**: `~/.config/til-capture/config.json` でデフォルト保存先を設定可能
 
 ## 必要環境
 
@@ -43,15 +44,30 @@ claude --plugin-dir ~/src/github.com/qaTororo/til-capture
 
 WebSearch や WebFetch を使って調査を行った後、セッション終了時に自動で TIL 記録を提案します。不要な場合はスキップできます。
 
+### 保存先の設定
+
+デフォルトの保存先を設定するには `~/.config/til-capture/config.json` を作成します:
+
+```bash
+mkdir -p ~/.config/til-capture
+cat > ~/.config/til-capture/config.json << 'EOF'
+{
+  "defaultTilDir": "/home/user/my-knowledge-base/til"
+}
+EOF
+```
+
+`defaultTilDir` には TIL ファイルを保存したいディレクトリの絶対パスを指定してください。
+
 ## TIL 保存先
 
 以下の順でディレクトリを検索し、最初に見つかった場所に保存します:
 
-1. `src/content/til/` (Astro/Starlight)
-2. `content/til/` (汎用 CMS)
-3. `til/` (シンプル構成)
+1. CWD 内のプロジェクトディレクトリ (`src/content/til/` → `content/til/` → `til/`)
+2. `~/.config/til-capture/config.json` の `defaultTilDir`
+3. `~/til/` (フォールバック)
 
-見つからない場合はユーザーに保存先を確認します。
+CWD 内のディレクトリが最優先されます。CWD 内に該当ディレクトリがない場合のみ、config または `~/til/` を使用します（確認付き）。
 
 ## 生成されるファイル形式
 
@@ -72,31 +88,30 @@ draft: true
 
 ## ロードマップ
 
-### v0.2 (予定)
+### v0.2 (実装済み)
 
 #### 保存先設定機能
 
-`~/.config/til-capture/config.json` でデフォルト保存先を設定可能にする。
-
-```json
-{
-  "defaultTilDir": "/home/user/my-knowledge-base/til"
-}
-```
+`~/.config/til-capture/config.json` でデフォルト保存先を設定可能。
 
 保存先の解決順序:
 
 1. CWD 内のプロジェクトディレクトリ (`src/content/til/` → `content/til/` → `til/`)
 2. `config.json` の `defaultTilDir`
-3. `~/til/` をサジェスト（未設定時のフォールバック）
+3. `~/til/` (フォールバック)
 
 #### 自動キャプチャの可視化
 
-SessionStart hook を改善し、自動キャプチャの状態を毎セッション表示する。
+SessionStart hook で自動キャプチャの状態を毎セッション表示。
 
 - TIL ディレクトリが無くても常にステータスを表示
 - 表示例: `TIL auto-capture: ON (WebSearch/WebFetch) | Stock: 42 entries`
 - 未検出時: `TIL auto-capture: ON | Save to: <defaultTilDir or ~/til/>`
+
+#### Stop hook の改善
+
+- 保存先を hook 側で解決し、REASON メッセージに明示
+- ユーザーへの質問が不要に
 
 ### v0.3+ (検討中)
 
