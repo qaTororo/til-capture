@@ -39,7 +39,7 @@ teardown() {
 @test "状態ファイルが既に存在 → 早期終了、出力なし" {
   local transcript
   transcript=$(create_transcript "WebSearch")
-  touch "/tmp/til-capture-${TEST_SESSION_ID}"
+  create_state_file "$TEST_SESSION_ID"
   local input
   input=$(generate_stop_hook_input "$TEST_SESSION_ID" "$transcript" "$TEST_CWD" "false")
 
@@ -105,7 +105,9 @@ teardown() {
   input=$(generate_stop_hook_input "$TEST_SESSION_ID" "$transcript" "$TEST_CWD" "false")
 
   bash -c "echo '$input' | bash '$HOOK_SCRIPT'" > /dev/null
-  [ -f "/tmp/til-capture-${TEST_SESSION_ID}" ]
+  local state_file
+  state_file=$(get_state_file "$TEST_SESSION_ID")
+  [ -f "$state_file" ]
 }
 
 # --- 9. 2回目実行 → 状態ファイルで早期終了 ---
@@ -288,4 +290,79 @@ teardown() {
   reason=$(echo "$output" | jq -r '.reason')
   [[ "$reason" == *"保存先候補: ${HOME}/til"* ]]
   [[ "$reason" == *"${HOME}/til に保存してよいですか"* ]]
+}
+
+# --- 20. 必須フィールド欠落 → 早期終了 ---
+@test "session_id が空 → 早期終了、出力なし" {
+  local transcript
+  transcript=$(create_transcript "WebSearch")
+  local input
+  input=$(jq -n \
+    --arg tp "$transcript" \
+    --arg cwd "$TEST_CWD" \
+    '{
+      session_id: "",
+      transcript_path: $tp,
+      cwd: $cwd,
+      stop_hook_active: false
+    }')
+
+  run bash -c "echo '$input' | bash '$HOOK_SCRIPT'"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}
+
+# --- 21. CWD にパストラバーサル → 早期終了 ---
+@test "CWD にパストラバーサルを含む → 早期終了" {
+  local transcript
+  transcript=$(create_transcript "WebSearch")
+  local input
+  input=$(generate_stop_hook_input "$TEST_SESSION_ID" "$transcript" "/tmp/../etc" "false")
+
+  run bash -c "echo '$input' | bash '$HOOK_SCRIPT'"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}
+
+# --- 22. CWD が相対パス → 早期終了 ---
+@test "CWD が相対パス → 早期終了" {
+  local transcript
+  transcript=$(create_transcript "WebSearch")
+  local input
+  input=$(generate_stop_hook_input "$TEST_SESSION_ID" "$transcript" "relative/path" "false")
+
+  run bash -c "echo '$input' | bash '$HOOK_SCRIPT'"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}
+
+# --- 23. config.json のパストラバーサル → フォールバック ---
+@test "config.json にパストラバーサル → フォールバックで ~/til/" {
+  local transcript
+  transcript=$(create_transcript "WebSearch")
+  create_config "/tmp/../etc/evil"
+  local input
+  input=$(generate_stop_hook_input "$TEST_SESSION_ID" "$transcript" "$TEST_CWD" "false")
+
+  run bash -c "echo '$input' | bash '$HOOK_SCRIPT'"
+  [ "$status" -eq 0 ]
+  local reason
+  reason=$(echo "$output" | jq -r '.reason')
+  # パストラバーサルが拒否され、フォールバック ~/til/ が使われる
+  [[ "$reason" == *"${HOME}/til"* ]]
+}
+
+# --- 24. config.json に相対パス → フォールバック ---
+@test "config.json に相対パス → フォールバックで ~/til/" {
+  local transcript
+  transcript=$(create_transcript "WebSearch")
+  create_config "relative/til"
+  local input
+  input=$(generate_stop_hook_input "$TEST_SESSION_ID" "$transcript" "$TEST_CWD" "false")
+
+  run bash -c "echo '$input' | bash '$HOOK_SCRIPT'"
+  [ "$status" -eq 0 ]
+  local reason
+  reason=$(echo "$output" | jq -r '.reason')
+  [[ "$reason" == *"${HOME}/til"* ]]
 }

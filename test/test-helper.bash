@@ -14,14 +14,34 @@ common_setup() {
   export TEST_CWD="${BATS_TEST_TMPDIR}/project"
   mkdir -p "$TEST_CWD"
 
+  # TMPDIR をテスト用に隔離（ステートファイルの分離）
+  export TMPDIR="${BATS_TEST_TMPDIR}"
+  # XDG_RUNTIME_DIR を無効化（ステートファイルパスを TMPDIR に統一）
+  unset XDG_RUNTIME_DIR
+
   # ユニークな session_id
   export TEST_SESSION_ID="test-$$-${BATS_TEST_NUMBER}"
 }
 
 # --- 共通 teardown ---
 common_teardown() {
-  # テスト用状態ファイルを掃除
-  rm -f "/tmp/til-capture-${TEST_SESSION_ID}"
+  # BATS_TEST_TMPDIR は BATS が自動クリーンアップするため追加処理不要
+  :
+}
+
+# --- ステートファイルパスを取得 ---
+get_state_file() {
+  local session_id="${1:-$TEST_SESSION_ID}"
+  echo "${BATS_TEST_TMPDIR}/til-capture-$(id -u)/${session_id}"
+}
+
+# --- ステートファイルを事前作成（既存チェックのテスト用） ---
+create_state_file() {
+  local session_id="${1:-$TEST_SESSION_ID}"
+  local state_dir="${BATS_TEST_TMPDIR}/til-capture-$(id -u)"
+  mkdir -p "$state_dir"
+  chmod 700 "$state_dir"
+  touch "${state_dir}/${session_id}"
 }
 
 # --- トランスクリプト生成 ---
