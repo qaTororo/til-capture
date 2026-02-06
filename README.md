@@ -74,8 +74,34 @@ draft: true
 
 ### v0.2 (予定)
 
+#### 保存先設定機能
+
+`~/.config/til-capture/config.json` でデフォルト保存先を設定可能にする。
+
+```json
+{
+  "defaultTilDir": "/home/user/my-knowledge-base/til"
+}
+```
+
+保存先の解決順序:
+
+1. CWD 内のプロジェクトディレクトリ (`src/content/til/` → `content/til/` → `til/`)
+2. `config.json` の `defaultTilDir`
+3. `~/til/` をサジェスト（未設定時のフォールバック）
+
+#### 自動キャプチャの可視化
+
+SessionStart hook を改善し、自動キャプチャの状態を毎セッション表示する。
+
+- TIL ディレクトリが無くても常にステータスを表示
+- 表示例: `TIL auto-capture: ON (WebSearch/WebFetch) | Stock: 42 entries`
+- 未検出時: `TIL auto-capture: ON | Save to: <defaultTilDir or ~/til/>`
+
+### v0.3+ (検討中)
+
 - TIL テンプレートのカスタマイズ
-- タグの自動補完
+- タグの自動補完（既存 TIL から抽出）
 - 既存 TIL との重複チェック
 
 ## ライセンス
