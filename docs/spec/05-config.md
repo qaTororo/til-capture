@@ -1,6 +1,6 @@
 # 機能仕様: 設定・保存先解決
 
-> **ステータス**: `[Implemented]` (v0.3.0)
+> **ステータス**: `[Implemented]` (v1.0.0)
 > **最終更新**: 2026-02-08
 
 ## 概要
@@ -34,7 +34,7 @@ flowchart TD
     D -->|Yes| E{ディレクトリが<br/>存在する?}
     E -->|Yes| F[config.json のパスを使用<br/>信頼度: 高]
     E -->|No| G[config.json のパスを使用<br/>信頼度: 低]
-    D -->|No| H["~/til/ を使用<br/>信頼度: 低"]
+    D -->|No| H["⚠ アラート表示<br/>保存しない"]
 ```
 
 ### Step 1: CWD 内のプロジェクトディレクトリ
@@ -99,17 +99,18 @@ CWD 内にディレクトリが見つからない場合、設定ファイルを�
 | `defaultTilDir` のディレクトリが存在する | 高 | stop-hook.bats #14 / session-start-hook.bats #7 |
 | `defaultTilDir` のディレクトリが存在しない | 低 | stop-hook.bats #15 / session-start-hook.bats #8 |
 
-### Step 3: フォールバック `~/til/`（v1.0 で削除予定）
+### Step 3: 保存先未設定時のアラート（v1.0 で実装）
 
-> **⚠ v1.0 変更予定（[ADR-004](../adr/ADR-004-directory-resolution-strategy.md)）**: フォールバック `~/til/` は v1.0 で削除される。CWD に `til/` がなく、config.json にも `defaultTilDir` が設定されていない場合は、アラートを表示して保存を行わない方針に変更。詳細は ADR-004 を参照。
+> **v1.0 変更（[ADR-004](../adr/ADR-004-directory-resolution-strategy.md)）**: v0.3 のフォールバック `~/til/` を削除。CWD に `til/` がなく、config.json にも `defaultTilDir` が設定されていない場合は、アラートを表示して保存を行わない。
 
-Step 1, 2 で保存先が決まらない場合のデフォルト値（v0.3 での動作）。
+Step 1, 2 で保存先が決まらない場合、保存は行わずアラートメッセージを表示する。
 
 | 項目 | 値 |
 |------|-----|
-| **パス** | `~/til/`（`$HOME/til`） |
-| **信頼度** | 低（常にユーザー確認が必要） |
-| **テストケース** | stop-hook.bats #16 / session-start-hook.bats #9 |
+| **動作** | アラート表示（保存しない） |
+| **Stop hook** | `decision: "block"` + 設定手順を案内 |
+| **SessionStart hook** | ⚠ メッセージ + 設定手順を案内 |
+| **テストケース** | stop-hook.bats #16,#19,#23,#24,#25 / session-start-hook.bats #9,#13 |
 
 ## 信頼度ベースの確認（F-005）
 
@@ -120,7 +121,7 @@ Step 1, 2 で保存先が決まらない場合のデフォルト値（v0.3 で�
 | **高** | CWD 内ディレクトリ存在 | 自動実行メッセージ（パターン C） | 確認なしで保存 |
 | **高** | config.json + ディレクトリ存在 | 自動実行メッセージ（パターン C） | 確認なしで保存 |
 | **低** | config.json + ディレクトリ未存在 | 確認付きメッセージ（パターン B） | ユーザー確認後に保存 |
-| **低** | フォールバック `~/til/` | 確認付きメッセージ（パターン B） | ユーザー確認後に保存 |
+| **—** | 保存先未設定 | アラート表示（保存しない） | 設定を案内して終了 |
 
 ### メッセージの違い
 
@@ -158,26 +159,24 @@ Step 1, 2 で保存先が決まらない場合のデフォルト値（v0.3 で�
 
 | 実装 | CWD 検証 | config.json パス検証 | フォールバック動作 |
 |------|---------|-------------------|--------------------|
-| **stop-hook.sh** | 不正値 → `exit 0` | 不正値 → 空文字化 → フォールバック | `$HOME/til` を設定 |
-| **session-start-hook.sh** | 不正値 → 空文字化 | 不正値 → 空文字化 → フォールバック | フォールバック表示 |
-| **SKILL.md** | Claude の判断に依存 | Claude が Read で読み取り | ユーザーに確認を求める指示 |
+| **stop-hook.sh** | 不正値 → `exit 0` | 不正値 → 空文字化 → アラート | アラート表示（`decision: "block"`） |
+| **session-start-hook.sh** | 不正値 → 空文字化 | 不正値 → 空文字化 → アラート | ⚠ メッセージ表示 |
+| **SKILL.md** | Claude の判断に依存 | Claude が Read で読み取り | 設定を案内して終了 |
 
 > **設計ノート**: Hook（Shell スクリプト）は厳密なバリデーションを行うが、Skill（Claude 解釈）は SKILL.md の指示に従う柔軟な動作となる。信頼度の概念は共通だが、実装手段が異なる。
 
 ## セキュリティ要件
 
 - パストラバーサル対策: [security.md §2](../security.md)
-- config.json の不正値は静かにフォールバック（エラーメッセージを出さない）
-- フォールバック `~/til/` への書き込みは常にユーザー確認必須
+- config.json の不正値は静かにアラート表示に移行（エラーメッセージを出さない）
+- 保存先未設定時は保存を行わない（意図しない書き込みの防止）
 
-## v1.0 での変更予定
-
-### 確定事項（ADR で決定済み）
+## v1.0 での変更（実装済み）
 
 1. **フォールバック `~/til/` の削除**（[ADR-004](../adr/ADR-004-directory-resolution-strategy.md)）
    - CWD `til/` も config.json `defaultTilDir` もない場合 → アラート表示、保存しない
    - config.json が存在するが `defaultTilDir` が null/空 → アラート表示
-   - 初回オンボーディング: SessionStart hook で Claude にセットアップ支援を依頼する導線を追加
+   - SessionStart hook のアラートメッセージで設定手順を案内
 
 2. **config.json `defaultTilDir` の実質必須化**（[ADR-004](../adr/ADR-004-directory-resolution-strategy.md)）
    - CWD 内に `til/` がない環境では、config.json の設定が必須

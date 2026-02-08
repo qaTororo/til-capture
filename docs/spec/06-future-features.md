@@ -89,7 +89,7 @@ config.json に `template` セクションを追加し、frontmatter とセク�
 
 ### F-102: タグ自動補完
 
-> **ステータス**: `[Accepted]` — v1.0 確定（[ADR-002](../adr/ADR-002-v1-feature-priority.md)）
+> **ステータス**: `[Implemented]` — v1.0 で実装済み（[ADR-002](../adr/ADR-002-v1-feature-priority.md)）
 
 | 項目 | 値 |
 |------|-----|
@@ -137,7 +137,7 @@ flowchart TD
 
 ### F-107: TIL 検索・一覧表示
 
-> **ステータス**: `[Accepted]` — v1.0 確定（[ADR-002](../adr/ADR-002-v1-feature-priority.md)）
+> **ステータス**: `[Implemented]` — v1.0 で実装済み（[ADR-002](../adr/ADR-002-v1-feature-priority.md)）
 
 | 項目 | 値 |
 |------|-----|
