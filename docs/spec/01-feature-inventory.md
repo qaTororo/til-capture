@@ -73,13 +73,19 @@ CWD → config.json → フォールバック の優先順位で保存先を決�
 | F-102 | タグ自動補完 | UX 改善 | **v1.0** | 中 | F-003 | `[Accepted]` | [06-future-features.md](./06-future-features.md#f-102-タグ自動補完) |
 | F-107 | TIL 検索・一覧表示 | Skill 追加 | **v1.0** | 低 | F-004 | `[Accepted]` | [06-future-features.md](./06-future-features.md#f-107-til-検索一覧表示) |
 | F-101 | テンプレートカスタマイズ | 設定拡張 | v1.1+ | 中 | F-004 | `[Draft]` | [06-future-features.md](./06-future-features.md#f-101-テンプレートカスタマイズ) |
-| F-103 | 重複チェック | 品質向上 | v1.1+ | 高 | F-001, F-003 | `[Draft]` | [06-future-features.md](./06-future-features.md#f-103-重複チェック) |
+| F-103 | 重複チェック | 品質向上 | v1.1+ | 高 | F-001, F-003 | `[Out of Scope]` | [06-future-features.md](./06-future-features.md#f-103-重複チェック) |
 | F-104 | PostToolUse(Write) 連携 | Hook 拡張 | v1.1+ | 低 | F-001 | `[Draft]` | [06-future-features.md](./06-future-features.md#f-104-posttoolusewrit-連携) |
 | F-105 | UserPromptSubmit 連携 | Hook 拡張 | v2+ | 低 | — | `[Draft]` | [06-future-features.md](./06-future-features.md#f-105-userpromptsubmit-連携) |
 | F-106 | PostToolUse(WebSearch) 連携 | Hook 拡張 | v1.1+ | 中 | F-001 | `[Draft]` | [06-future-features.md](./06-future-features.md#f-106-posttooluse-websearch-連携) |
 | F-108 | Draft → Publish ワークフロー | UX 改善 | v2+ | 中 | F-003 | `[Draft]` | [06-future-features.md](./06-future-features.md#f-108-draft--publish-ワークフロー) |
 | F-109 | エクスポート機能 | Skill 追加 | v2+ | 中 | F-004 | `[Draft]` | [06-future-features.md](./06-future-features.md#f-109-エクスポート機能) |
 | F-110 | 統計・サマリー表示の強化 | UX 改善 | v1.1+ | 低 | F-002 | `[Draft]` | [06-future-features.md](./06-future-features.md#f-110-統計サマリー表示の強化) |
+
+## v1.1 機能
+
+| ID | 機能名 | 種別 | リリース | 複雑度 | 依存 | ステータス | 仕様 |
+|----|--------|------|---------|--------|------|-----------|------|
+| F-111 | チーム利用対応（author） | 設定拡張 | **v1.1** | 低 | F-004 | `[Implemented]` | [05-config.md](./05-config.md) |
 
 > **決定根拠**: [ADR-002](../adr/ADR-002-v1-feature-priority.md)（v1.0 機能の優先順位）、[ADR-003](../adr/ADR-003-new-hook-event-strategy.md)（新規 Hook 慎重待機）
 

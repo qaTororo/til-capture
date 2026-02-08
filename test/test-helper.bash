@@ -96,9 +96,15 @@ generate_session_start_input() {
 # --- config.json 作成 ---
 create_config() {
   local til_dir="$1"
+  local author="${2:-}"
   local config_dir="${HOME}/.config/til-capture"
   mkdir -p "$config_dir"
-  jq -n --arg dir "$til_dir" '{ defaultTilDir: $dir }' > "${config_dir}/config.json"
+  if [[ -n "$author" ]]; then
+    jq -n --arg dir "$til_dir" --arg author "$author" \
+      '{ defaultTilDir: $dir, author: $author }' > "${config_dir}/config.json"
+  else
+    jq -n --arg dir "$til_dir" '{ defaultTilDir: $dir }' > "${config_dir}/config.json"
+  fi
 }
 
 # --- TIL ディレクトリ作成（CWD 配下） ---

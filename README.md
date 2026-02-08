@@ -1,8 +1,8 @@
 # til-capture
 
-![version](https://img.shields.io/badge/version-1.0.0-blue)
+![version](https://img.shields.io/badge/version-1.1.0-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
-![tests](https://img.shields.io/badge/tests-43%20passing-brightgreen)
+![tests](https://img.shields.io/badge/tests-47%20passing-brightgreen)
 
 Claude Code セッション中の「学び」を TIL (Today I Learned) メモとしてキャプチャするプラグイン。
 
@@ -75,7 +75,7 @@ WebSearch や WebFetch を使って調査を行った後、セッション終了
 毎セッション開始時に、TIL の自動キャプチャ状態が表示されます。
 
 ```
-TIL auto-capture: ON (WebSearch/WebFetch) | Stock: 42 entries (/path/to/til)
+TIL auto-capture: ON (WebSearch/WebFetch) | Author: your-username | Stock: 42 entries (/path/to/til)
 ```
 
 保存先が未設定の場合:
@@ -94,12 +94,15 @@ TIL auto-capture: ⚠ No save destination configured. Set defaultTilDir in ~/.co
 mkdir -p ~/.config/til-capture
 cat > ~/.config/til-capture/config.json << 'EOF'
 {
-  "defaultTilDir": "/home/user/my-knowledge-base/til"
+  "defaultTilDir": "/home/user/my-knowledge-base/til",
+  "author": "your-username"
 }
 EOF
 ```
 
 `defaultTilDir` には TIL ファイルを保存したいディレクトリの絶対パスを指定してください。
+
+`author` には TIL の著者名を指定します（省略可）。チームで共有リポジトリを使う場合に「誰が書いたか」を記録するために設定してください。
 
 ### 保存先の解決順序
 
@@ -118,6 +121,7 @@ EOF
 ---
 title: "学びのタイトル"
 date: 2026-01-01
+author: "your-username"
 tags: [tag1, tag2]
 draft: true
 ---
@@ -157,16 +161,20 @@ npm test
 
 ## ロードマップ
 
-### v1.0（現行）
+### v1.0
 
 - タグの自動補完 — 既存 TIL から抽出し、タグの一貫性を維持（F-102）
 - TIL 検索・一覧表示 — `/til-list` でセッション内から過去の TIL を検索・ブラウズ（F-107）
 - 保存先の意図的な設定 — `~/til/` フォールバック削除、config.json の設定を推奨（ADR-004）
 
-### v1.1+
+### v1.1（現行）
 
+- チーム利用対応 — `author` フィールドの追加で「誰が書いたか」を記録（F-111）
+
+### v1.2+
+
+- UX 改善（コンテキスト汚染対策）
 - TIL テンプレートのカスタマイズ（F-101）
-- 既存 TIL との重複チェック（F-103）
 - 新規 Hook イベント活用（PostToolUse 等）
 
 ## ライセンス

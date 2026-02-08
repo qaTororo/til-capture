@@ -18,9 +18,13 @@ fi
 # --- config.json 読み取り ---
 CONFIG_FILE="${HOME}/.config/til-capture/config.json"
 DEFAULT_TIL_DIR=""
+AUTHOR=""
 if [[ -f "$CONFIG_FILE" ]]; then
   if ! DEFAULT_TIL_DIR=$(jq -r '.defaultTilDir // empty' "$CONFIG_FILE" 2>/dev/null); then
     DEFAULT_TIL_DIR=""
+  fi
+  if ! AUTHOR=$(jq -r '.author // empty' "$CONFIG_FILE" 2>/dev/null); then
+    AUTHOR=""
   fi
   # パストラバーサル・相対パスの排除（不正値は静かにフォールバック）
   if [[ -n "$DEFAULT_TIL_DIR" ]]; then
@@ -53,24 +57,30 @@ if [[ -n "$CWD" ]]; then
   done
 fi
 
+# --- Author 表示用 ---
+AUTHOR_PART=""
+if [[ -n "$AUTHOR" ]]; then
+  AUTHOR_PART=" | Author: ${AUTHOR}"
+fi
+
 # --- ステータス表示（常時出力） ---
 if [[ -n "$TIL_DIR" ]]; then
   COUNT=$(count_md_files "$TIL_DIR")
   if [[ "$COUNT" -gt 1000 ]]; then
-    STATUS="TIL auto-capture: ON (WebSearch/WebFetch) | Stock: 1000+ entries (${TIL_DIR})"
+    STATUS="TIL auto-capture: ON (WebSearch/WebFetch)${AUTHOR_PART} | Stock: 1000+ entries (${TIL_DIR})"
   else
-    STATUS="TIL auto-capture: ON (WebSearch/WebFetch) | Stock: ${COUNT} entries (${TIL_DIR})"
+    STATUS="TIL auto-capture: ON (WebSearch/WebFetch)${AUTHOR_PART} | Stock: ${COUNT} entries (${TIL_DIR})"
   fi
 elif [[ -n "$DEFAULT_TIL_DIR" ]]; then
   if [[ -d "$DEFAULT_TIL_DIR" ]]; then
     COUNT=$(count_md_files "$DEFAULT_TIL_DIR")
     if [[ "$COUNT" -gt 1000 ]]; then
-      STATUS="TIL auto-capture: ON (WebSearch/WebFetch) | Stock: 1000+ entries (${DEFAULT_TIL_DIR})"
+      STATUS="TIL auto-capture: ON (WebSearch/WebFetch)${AUTHOR_PART} | Stock: 1000+ entries (${DEFAULT_TIL_DIR})"
     else
-      STATUS="TIL auto-capture: ON (WebSearch/WebFetch) | Stock: ${COUNT} entries (${DEFAULT_TIL_DIR})"
+      STATUS="TIL auto-capture: ON (WebSearch/WebFetch)${AUTHOR_PART} | Stock: ${COUNT} entries (${DEFAULT_TIL_DIR})"
     fi
   else
-    STATUS="TIL auto-capture: ON (WebSearch/WebFetch) | Save to: ${DEFAULT_TIL_DIR} (will ask)"
+    STATUS="TIL auto-capture: ON (WebSearch/WebFetch)${AUTHOR_PART} | Save to: ${DEFAULT_TIL_DIR} (will ask)"
   fi
 else
   STATUS="TIL auto-capture: ⚠ No save destination configured. Set defaultTilDir in ~/.config/til-capture/config.json or create a til/ directory in your project."

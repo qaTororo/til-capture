@@ -79,7 +79,8 @@ CWD 内にディレクトリが見つからない場合、設定ファイルを�
 
 ```jsonc
 {
-  "defaultTilDir": "/absolute/path/to/til"  // 絶対パス必須
+  "defaultTilDir": "/absolute/path/to/til",  // 絶対パス必須
+  "author": "username"                        // v1.1 で追加、省略可
 }
 ```
 
@@ -91,6 +92,13 @@ CWD 内にディレクトリが見つからない場合、設定ファイルを�
 | `..` を含まないこと | 値を無視してフォールバック | stop-hook.bats #23 |
 | JSON パースエラー | 値を無視してフォールバック | — |
 | `defaultTilDir` フィールド未設定 | 値を無視してフォールバック | — |
+
+#### author フィールド（v1.1 で追加）
+
+| チェック | 不正時の動作 |
+|---------|------------|
+| 文字列であること | 値を無視（author なしとして動作） |
+| 空文字列でないこと | 値を無視（author なしとして動作） |
 
 #### 信頼度判定
 
@@ -188,7 +196,8 @@ Step 1, 2 で保存先が決まらない場合、保存は行わずアラート�
   ```jsonc
   {
     "defaultTilDir": "/path/to/til",  // v1.0 で実質必須化
-    "template": {                      // F-101 で追加予定（v1.1+）
+    "author": "username",             // v1.1 で追加（チーム利用対応）
+    "template": {                      // F-101 で追加予定（将来）
       "frontmatter": { ... },
       "sections": [ ... ]
     }

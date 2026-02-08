@@ -36,18 +36,21 @@ allowed-tools: Read, Write, Glob, Grep, Bash(date:*), Bash(mkdir:*)
 
 最初に見つかったディレクトリを使用する。
 
-#### Step 2: config.json の defaultTilDir
-Step 1 で見つからない場合、`~/.config/til-capture/config.json` を Read で読み取る。
-`defaultTilDir` フィールドが設定されている場合、そのパスを使用する。
-- ディレクトリが**存在する**場合: そのまま保存（高信頼）
-- ディレクトリが**存在しない**場合: ユーザーに確認してから `mkdir -p` で作成（低信頼）
+#### Step 2: config.json の読み取り
+`~/.config/til-capture/config.json` を Read で読み取る（Step 1 の結果に関わらず常に読み取る）。
+
+- `author` フィールドが設定されている場合、その値を frontmatter の `author` に使用する。
+- Step 1 で保存先が見つかっている場合、`defaultTilDir` は使用しない。
+- Step 1 で見つからない場合、`defaultTilDir` フィールドが設定されていれば、そのパスを保存先として使用する。
+  - ディレクトリが**存在する**場合: そのまま保存（高信頼）
+  - ディレクトリが**存在しない**場合: ユーザーに確認してから `mkdir -p` で作成（低信頼）
 
 ファイルが存在しないまたは読み取りエラーの場合は無視して次へ。
 
 #### 保存先が見つからない場合
 Step 1, 2 で保存先が決まらない場合、TIL の保存は行わない。
 ユーザーに以下を案内する:
-- `~/.config/til-capture/config.json` に `{"defaultTilDir": "/path/to/til"}` を設定する
+- `~/.config/til-capture/config.json` に `{"defaultTilDir": "/path/to/til", "author": "your-name"}` を設定する
 - またはプロジェクト内に `til/` ディレクトリを作成する
 
 設定方法が分からない場合は、ユーザーに保存先を聞いて config.json を生成する手助けをする。
@@ -78,6 +81,7 @@ Step 1, 2 で保存先が決まらない場合、TIL の保存は行わない。
 ---
 title: "学びのタイトル"
 date: YYYY-MM-DD
+author: "authorの値"
 tags: [tag1, tag2]
 draft: true
 ---
@@ -94,6 +98,8 @@ draft: true
 ## 参考
 （関連リンクや背景情報）
 ```
+
+- `author`: config.json に `author` が設定されている場合のみ含める。未設定の場合はこの行自体を省略する。
 
 ### 4. 結果報告
 

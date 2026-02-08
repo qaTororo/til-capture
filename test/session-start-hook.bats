@@ -191,3 +191,68 @@ teardown() {
   ctx=$(echo "$output" | jq -r '.hookSpecificOutput.additionalContext')
   [[ "$ctx" == *"TIL auto-capture: ON"* ]]
 }
+
+# --- 14. config.json に author 設定あり → Author 表示 ---
+@test "config.json に author 設定あり → Author 表示" {
+  local config_til_dir="${BATS_TEST_TMPDIR}/config-til"
+  mkdir -p "$config_til_dir"
+  create_config "$config_til_dir" "testuser"
+  local input
+  input=$(generate_session_start_input "$TEST_CWD")
+
+  run bash -c "echo '$input' | bash '$HOOK_SCRIPT'"
+  [ "$status" -eq 0 ]
+  local ctx
+  ctx=$(echo "$output" | jq -r '.hookSpecificOutput.additionalContext')
+  [[ "$ctx" == *"Author: testuser"* ]]
+}
+
+# --- 15. config.json に author 未設定 → Author 非表示 ---
+@test "config.json に author 未設定 → Author 非表示" {
+  local config_til_dir="${BATS_TEST_TMPDIR}/config-til"
+  mkdir -p "$config_til_dir"
+  create_config "$config_til_dir"
+  local input
+  input=$(generate_session_start_input "$TEST_CWD")
+
+  run bash -c "echo '$input' | bash '$HOOK_SCRIPT'"
+  [ "$status" -eq 0 ]
+  local ctx
+  ctx=$(echo "$output" | jq -r '.hookSpecificOutput.additionalContext')
+  [[ "$ctx" != *"Author:"* ]]
+}
+
+# --- 16. CWD に til/ あり + author 設定あり → Author 表示 ---
+@test "CWD に til/ あり + author 設定あり → Author 表示" {
+  create_cwd_til_dir "til"
+  add_md_files "${TEST_CWD}/til" "test.md"
+  local config_dir="${HOME}/.config/til-capture"
+  mkdir -p "$config_dir"
+  echo '{"author": "cwduser"}' > "${config_dir}/config.json"
+  local input
+  input=$(generate_session_start_input "$TEST_CWD")
+
+  run bash -c "echo '$input' | bash '$HOOK_SCRIPT'"
+  [ "$status" -eq 0 ]
+  local ctx
+  ctx=$(echo "$output" | jq -r '.hookSpecificOutput.additionalContext')
+  [[ "$ctx" == *"Author: cwduser"* ]]
+  [[ "$ctx" == *"Stock: 1 entries"* ]]
+}
+
+# --- 17. author が空文字列 → Author 非表示 ---
+@test "author が空文字列 → Author 非表示" {
+  local config_til_dir="${BATS_TEST_TMPDIR}/config-til"
+  mkdir -p "$config_til_dir"
+  local config_dir="${HOME}/.config/til-capture"
+  mkdir -p "$config_dir"
+  jq -n --arg dir "$config_til_dir" '{ defaultTilDir: $dir, author: "" }' > "${config_dir}/config.json"
+  local input
+  input=$(generate_session_start_input "$TEST_CWD")
+
+  run bash -c "echo '$input' | bash '$HOOK_SCRIPT'"
+  [ "$status" -eq 0 ]
+  local ctx
+  ctx=$(echo "$output" | jq -r '.hookSpecificOutput.additionalContext')
+  [[ "$ctx" != *"Author:"* ]]
+}
