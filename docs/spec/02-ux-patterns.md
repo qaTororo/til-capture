@@ -1,7 +1,7 @@
 # UI/UX パターン定義
 
-> **ステータス**: `[Draft]`
-> **最終更新**: 2026-02-08
+> **ステータス**: `[Implemented]`
+> **最終更新**: 2026-02-09
 
 ## 概要
 
@@ -75,7 +75,8 @@ sequenceDiagram
 | CWD 内に TIL ディレクトリ存在 | `TIL auto-capture: ON (WebSearch/WebFetch) \| Stock: N entries (パス)` |
 | config.json 設定 + ディレクトリ存在 | `TIL auto-capture: ON (WebSearch/WebFetch) \| Stock: N entries (パス)` |
 | config.json 設定 + ディレクトリ未存在 | `TIL auto-capture: ON (WebSearch/WebFetch) \| Save to: パス (will ask)` |
-| フォールバック | `TIL auto-capture: ON (WebSearch/WebFetch) \| Save to: ~/til/ (will ask, configurable via ~/.config/til-capture/config.json)` |
+| 保存先未設定 | `TIL auto-capture: ⚠ No save destination configured. Set defaultTilDir in ~/.config/til-capture/config.json or create a til/ directory in your project.` |
+| author 設定あり | 上記メッセージに `\| Author: username` が追加される |
 | 1000件超 | `TIL auto-capture: ON (WebSearch/WebFetch) \| Stock: 1000+ entries (パス)` |
 
 ### パターン B: 確認付き提案（低信頼）
@@ -99,12 +100,12 @@ sequenceDiagram
     H->>H: WebSearch/WebFetch 使用を検知
     H->>H: 保存先解決 → 低信頼
     H->>C: JSON（decision: block, reason: 確認付きメッセージ）
-    C->>U: "学びをTILメモとして記録しませんか？<br/>保存先候補: ~/til/<br/>保存先を確認してよいですか？"
-    U->>C: "はい、~/til/ でOK"
+    C->>U: "学びをTILメモとして記録しませんか？<br/>保存先候補: /path/to/til<br/>保存先を確認してよいですか？"
+    U->>C: "はい、そこでOK"
     C->>S: /til スキル実行
-    S->>S: mkdir -p ~/til/
+    S->>S: mkdir -p /path/to/til
     S->>S: Markdown ファイル生成
-    S->>U: "保存しました: ~/til/2026-02-08-xxx.md"
+    S->>U: "保存しました: /path/to/til/2026-02-08-xxx.md"
 ```
 
 **Hook 出力メッセージ**:
@@ -113,7 +114,7 @@ sequenceDiagram
 
 保存先候補: ${TIL_DIR}
 
-このディレクトリはまだ存在しないか、明示的に設定されていません。
+このディレクトリはまだ存在しません。
 ユーザーに保存先を確認してから保存してください。
 （~/.config/til-capture/config.json で defaultTilDir を設定すると次回から自動保存されます）
 
@@ -188,10 +189,10 @@ sequenceDiagram
         S->>S: 3. Markdown ファイル生成
         S->>U: "保存しました: ./til/2026-02-08-xxx.md"
     else 低信頼の保存先
-        S->>U: "~/til/ に保存してよいですか？"
+        S->>U: "/path/to/til に保存してよいですか？"
         U->>S: "はい"
         S->>S: 3. mkdir -p + ファイル生成
-        S->>U: "保存しました: ~/til/2026-02-08-xxx.md"
+        S->>U: "保存しました: /path/to/til/2026-02-08-xxx.md"
     end
 ```
 
@@ -329,6 +330,7 @@ YYYY-MM-DD-<slug>.md
 ---
 title: "学びのタイトル"
 date: YYYY-MM-DD
+author: "username"
 tags: [tag1, tag2]
 draft: true
 ---
@@ -352,5 +354,6 @@ draft: true
 |-----------|-----|------|------|
 | `title` | string | Yes | 学びのタイトル（日本語可） |
 | `date` | string (YYYY-MM-DD) | Yes | 記録日 |
+| `author` | string | No | 著者名（config.json に設定されている場合のみ。未設定時は行自体を省略） |
 | `tags` | string[] | Yes | 分類タグ（1個以上） |
 | `draft` | boolean | Yes | ドラフト状態（常に `true` で生成） |

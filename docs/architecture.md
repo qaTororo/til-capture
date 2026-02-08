@@ -22,6 +22,12 @@ til-capture/
 │   ├── session-start-hook.bats # SessionStart hook のテスト
 │   └── plugin-validation.bats  # plugin.json のバリデーションテスト
 ├── docs/
+│   ├── adr/                   # ADR（Architecture Decision Records）
+│   │   ├── ADR-001〜005       # 設計判断の記録
+│   │   └── README.md
+│   ├── spec/                  # Living Spec（機能仕様書）
+│   │   ├── 00-vision.md〜06-future-features.md
+│   │   └── README.md
 │   ├── architecture.md       # 本ドキュメント
 │   └── security.md           # セキュリティ対策
 ├── package.json              # テストランナー（bats）の設定
@@ -51,6 +57,8 @@ til-capture/
   │
   ├─ WebSearch/WebFetch 使用チェック ─── なし ──→ 終了
   │
+  ├─ config.json 読み取り（defaultTilDir, author）
+  │
   ├─ 保存先を解決（下記参照）
   │
   └─ 信頼度に応じた JSON レスポンスを出力
@@ -68,17 +76,19 @@ til-capture/
   │
   ├─ CWD 安全性検証
   │
-  ├─ config.json 読み取り（defaultTilDir）
+  ├─ config.json 読み取り（defaultTilDir, author）
   │
   ├─ CWD 内 TIL ディレクトリ検出
   │   (src/content/til → content/til → til)
   │
   ├─ .md ファイル数カウント（上限 1001 件で打ち切り）
   │
+  ├─ Author 表示用文字列の組み立て（author 設定時のみ）
+  │
   └─ ステータス文字列を出力
-      ├─ CWD内検出: "Stock: N entries (パス)"
-      ├─ config設定 + 存在: "Stock: N entries (パス)"
-      ├─ config設定 + 未存在: "Save to: パス (will ask)"
+      ├─ CWD内検出: "Stock: N entries (パス)" [+ Author]
+      ├─ config設定 + 存在: "Stock: N entries (パス)" [+ Author]
+      ├─ config設定 + 未存在: "Save to: パス (will ask)" [+ Author]
       └─ 未設定: "⚠ No save destination configured..."
 ```
 
@@ -93,10 +103,10 @@ Stop hook と /til スキルで共通のロジックです。
 | 2 | config.json の `defaultTilDir` | ディレクトリが存在しない | 低（ユーザーに確認） |
 | — | 上記すべて該当なし | — | アラート表示（保存しない） |
 
-config.json および defaultTilDir に対するバリデーション:
+config.json に対するバリデーション:
 
-- 絶対パス必須（`/` で始まること）
-- パストラバーサル排除（`..` を含まないこと）
+- `defaultTilDir`: 絶対パス必須（`/` で始まること）、パストラバーサル排除（`..` を含まないこと）
+- `author`: 文字列であること、空文字列でないこと（不正値は無視）
 - 不正値は静かにアラート表示に移行
 
 ## 状態管理
@@ -138,6 +148,6 @@ Stop hook は同一セッションで複数回実行されることを防ぐた�
 | `create_transcript` | トランスクリプトファイルの生成 |
 | `generate_stop_hook_input` | Stop hook 用 JSON 入力の生成 |
 | `generate_session_start_input` | SessionStart hook 用 JSON 入力の生成 |
-| `create_config` | config.json の作成 |
+| `create_config` | config.json の作成（defaultTilDir, author 対応） |
 | `create_cwd_til_dir` | CWD 配下に TIL ディレクトリを作成 |
 | `add_md_files` | TIL ディレクトリに .md ファイルを追加 |

@@ -39,6 +39,7 @@ ADR（判断の記録）          Living Spec（仕様の定義）
 | [002](./ADR-002-v1-feature-priority.md) | v1.0 機能の優先順位 | `[Accepted]` | 01-feature-inventory, 06-future | 2026-02-08 |
 | [003](./ADR-003-new-hook-event-strategy.md) | 新規 Hook イベント活用方針 | `[Accepted]` | 06-future-features | 2026-02-08 |
 | [004](./ADR-004-directory-resolution-strategy.md) | 保存先ディレクトリ解決戦略 | `[Accepted]` | 05-config | 2026-02-08 |
+| [005](./ADR-005-v1.1-team-usage-and-scope.md) | v1.1 チーム利用対応とスコープ判断 | `[Accepted]` | 01-feature-inventory, 05-config, 06-future | 2026-02-08 |
 
 <!-- 新しい ADR を追加したらここに行を追加する -->
 

@@ -1,7 +1,7 @@
 # 機能仕様: 手動キャプチャ
 
-> **ステータス**: `[Implemented]` (v0.3.0)
-> **最終更新**: 2026-02-08
+> **ステータス**: `[Implemented]` (v0.3.0、v1.0.0 / v1.1.0 で更新)
+> **最終更新**: 2026-02-09
 
 ## 概要
 
@@ -69,12 +69,13 @@ Claude が会話コンテキストから以下を抽出する:
 | 1 | CWD 内に TIL ディレクトリ存在 | そのまま保存 | D（確認なし） |
 | 2 | config.json + ディレクトリ存在 | そのまま保存 | D（確認なし） |
 | 3 | config.json + ディレクトリ未存在 | ユーザー確認 → `mkdir -p` | D（確認あり） |
-| 4 | フォールバック `~/til/` | ユーザー確認 → `mkdir -p` | D（確認あり） |
+| 4 | 保存先未設定 | 設定方法を案内して終了 | D（アラート） |
 
 **制約事項**:
 - Glob での無制限検索は行わない（SKILL.md で明記）
-- 低信頼パス（`~/til/` フォールバック）は必ずユーザー確認を行う
+- 低信頼パスは必ずユーザー確認を行う
 - `mkdir -p` はユーザー承認後のみ実行可
+- 保存先未設定時は保存を行わず、config.json の設定方法を案内（[ADR-004](../adr/ADR-004-directory-resolution-strategy.md)）
 
 ### Step 3: ファイル生成
 
@@ -93,6 +94,7 @@ YYYY-MM-DD-<slug>.md
 ---
 title: "学びのタイトル"
 date: YYYY-MM-DD
+author: "username"
 tags: [tag1, tag2]
 draft: true
 ---
@@ -116,7 +118,8 @@ draft: true
 |-----------|-----|------|---------|
 | `title` | string | Yes | Claude が学びの内容から生成 |
 | `date` | string (YYYY-MM-DD) | Yes | `date +%Y-%m-%d` |
-| `tags` | string[] | Yes | Claude が内容から推定（1個以上） |
+| `author` | string | No | config.json の `author` 値（未設定時は行自体を省略） |
+| `tags` | string[] | Yes | Claude が内容から推定（1個以上）。既存タグを優先使用（F-102） |
 | `draft` | boolean | Yes | 常に `true` |
 
 #### セクション
@@ -152,11 +155,20 @@ draft: true
 - Glob の無制限検索禁止は SKILL.md 内で明記されているが、Claude の解釈に依存する
 - `mkdir -p` は低信頼パス時にユーザー確認後のみ実行
 
-## v1.0 での変更予定
+## 変更履歴
 
-Phase 4（[06-future-features.md](./06-future-features.md)）で詳細化予定:
+### v1.0.0
+
+- **F-102**: タグ自動補完を実装 — 既存 TIL からタグを抽出し、新規 TIL 作成時に既存タグを優先使用
+- **フォールバック削除**: `~/til/` フォールバックを削除、保存先未設定時は設定方法を案内して終了（[ADR-004](../adr/ADR-004-directory-resolution-strategy.md)）
+- **F-103**: 重複チェックをスコープ外に変更（[ADR-005](../adr/ADR-005-v1.1-team-usage-and-scope.md)）
+
+### v1.1.0
+
+- **F-111**: config.json の `author` フィールドを読み取り、frontmatter に `author` を条件付きで追加
+- config.json を保存先の有無に関わらず常に読み取るよう変更（author 取得のため）
+
+### 将来バージョンでの検討
 
 - **F-101: テンプレートカスタマイズ** — frontmatter/セクション構成の設定化
-- **F-102: タグ自動補完** — 既存 TIL からのタグ抽出と提案
-- **F-103: 重複チェック** — 類似 TIL の検出と警告
 - **F-108: Draft → Publish ワークフロー** — `draft: true` → `draft: false` の管理

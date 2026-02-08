@@ -1,16 +1,16 @@
 # 機能仕様: 自動キャプチャ
 
-> **ステータス**: `[Implemented]` (v0.3.0)
-> **最終更新**: 2026-02-08
+> **ステータス**: `[Implemented]` (v0.3.0、v1.0.0 / v1.1.0 で更新)
+> **最終更新**: 2026-02-09
 
 ## 概要
 
 | 項目 | 値 |
 |------|-----|
-| **機能 ID** | F-001（自動キャプチャ提案）、F-002（ストック表示） |
+| **機能 ID** | F-001（自動キャプチャ提案）、F-002（ストック表示 + Author 表示） |
 | **種別** | Hook（Stop / SessionStart） |
 | **実装** | `hooks/stop-hook.sh` / `hooks/session-start-hook.sh` |
-| **テスト** | `test/stop-hook.bats`（24件）/ `test/session-start-hook.bats`（12件） |
+| **テスト** | `test/stop-hook.bats`（25件）/ `test/session-start-hook.bats`（17件） |
 | **UX パターン** | A（情報通知）/ B（確認付き提案）/ C（自動実行提案） |
 
 ## ユーザーストーリー
@@ -66,15 +66,15 @@
 | 13 | CWD に複数の TIL ディレクトリ | 高 | C | 最優先ディレクトリを使用 | stop-hook.bats #13 |
 | 14 | config.json + ディレクトリ存在 | 高 | C | `decision: block` + 自動実行メッセージ | stop-hook.bats #14 |
 | 15 | config.json + ディレクトリ未存在 | 低 | B | `decision: block` + 確認付きメッセージ | stop-hook.bats #15, #19 |
-| 16 | config.json なし（フォールバック） | 低 | B | `decision: block` + 確認付きメッセージ | stop-hook.bats #16 |
+| 16 | config.json なし + CWD に til/ なし | — | — | `decision: block` + アラートメッセージ | stop-hook.bats #16 |
 | 17 | CWD ディレクトリ > config.json | 高 | C | CWD のパスを使用 | stop-hook.bats #17 |
 
 #### セキュリティ検証パターン
 
 | # | 条件 | 出力 | 副作用 | テストケース |
 |---|------|------|--------|------------|
-| 18 | config.json にパストラバーサル | 低信頼（`~/til/`） | 不正値は無視 | stop-hook.bats #23 |
-| 19 | config.json に相対パス | 低信頼（`~/til/`） | 不正値は無視 | stop-hook.bats #24 |
+| 18 | config.json にパストラバーサル | アラート表示 | 不正値は無視 | stop-hook.bats #23 |
+| 19 | config.json に相対パス | アラート表示 | 不正値は無視 | stop-hook.bats #24 |
 
 ### 状態管理
 
@@ -134,7 +134,7 @@
 |---|------|------|------------|
 | 7 | config.json + ディレクトリ存在 | `Stock: N entries (パス)` | session-start-hook.bats #7 |
 | 8 | config.json + ディレクトリ未存在 | `Save to: パス (will ask)` | session-start-hook.bats #8 |
-| 9 | config.json なし | `Save to: ~/til/ (will ask, configurable via ...)` | session-start-hook.bats #9 |
+| 9 | config.json なし + CWD に til/ なし | `⚠ No save destination configured...` | session-start-hook.bats #9 |
 
 #### 優先順位と出力形式
 
@@ -161,11 +161,21 @@
 
 ---
 
-## v1.0 での変更予定
+## 変更履歴
 
-Phase 4（[06-future-features.md](./06-future-features.md)）で詳細化予定:
+### v1.0.0
 
-- **F-103: 重複チェック** — 過去の TIL と類似する内容の検出
+- **F-001**: フォールバック `~/til/` を削除、保存先未設定時はアラート表示に変更（[ADR-004](../adr/ADR-004-directory-resolution-strategy.md)）
+- **F-002**: アラートメッセージで設定手順を案内
+- **F-103**: 重複チェックをスコープ外に変更（[ADR-005](../adr/ADR-005-v1.1-team-usage-and-scope.md)）
+
+### v1.1.0
+
+- **F-002**: config.json の `author` フィールドを読み取り、セッション開始時に `| Author: username` を表示（[F-111](./01-feature-inventory.md)）
+- **F-001**: config.json から `author` を読み取り、TIL 記録指示メッセージに反映
+
+### 将来バージョンでの検討
+
 - **F-104: PostToolUse(Write) 連携** — TIL 書き込み後のメタデータ自動付与
 - **F-106: PostToolUse(WebSearch) 連携** — 調査トピックのリアルタイム蓄積
 - **F-110: 統計・サマリー表示の強化** — ストック表示の情報量拡充
