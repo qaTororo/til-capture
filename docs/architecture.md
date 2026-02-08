@@ -12,8 +12,10 @@ til-capture/
 │   ├── stop-hook.sh          # Stop hook: 自動 TIL キャプチャのトリガー
 │   └── session-start-hook.sh # SessionStart hook: ステータス表示
 ├── skills/
-│   └── til/
-│       └── SKILL.md          # /til スキル定義（手動 TIL 記録の手順）
+│   ├── til/
+│   │   └── SKILL.md          # /til スキル定義（手動 TIL 記録の手順）
+│   └── til-list/
+│       └── SKILL.md          # /til-list スキル定義（TIL 検索・一覧表示）
 ├── test/
 │   ├── test-helper.bash      # テスト共通ヘルパー
 │   ├── stop-hook.bats        # Stop hook のテスト
@@ -53,7 +55,8 @@ til-capture/
   │
   └─ 信頼度に応じた JSON レスポンスを出力
       ├─ 高信頼: 保存先を明示して記録を指示
-      └─ 低信頼: ユーザーに保存先の確認を依頼
+      ├─ 低信頼: ユーザーに保存先の確認を依頼
+      └─ 未設定: アラート表示（設定手順を案内）
 ```
 
 ### SessionStart hook（ステータス表示）
@@ -76,7 +79,7 @@ til-capture/
       ├─ CWD内検出: "Stock: N entries (パス)"
       ├─ config設定 + 存在: "Stock: N entries (パス)"
       ├─ config設定 + 未存在: "Save to: パス (will ask)"
-      └─ フォールバック: "Save to: ~/til/ (will ask, configurable...)"
+      └─ 未設定: "⚠ No save destination configured..."
 ```
 
 ## 保存先解決ロジック
@@ -88,13 +91,13 @@ Stop hook と /til スキルで共通のロジックです。
 | 1 | CWD 内ディレクトリ | `src/content/til/`、`content/til/`、`til/` の順に存在確認 | 高（確認なしで保存） |
 | 2 | config.json の `defaultTilDir` | ディレクトリが存在する | 高（確認なしで保存） |
 | 2 | config.json の `defaultTilDir` | ディレクトリが存在しない | 低（ユーザーに確認） |
-| 3 | `~/til/`（フォールバック） | 上記すべて該当なし | 低（ユーザーに確認） |
+| — | 上記すべて該当なし | — | アラート表示（保存しない） |
 
 config.json および defaultTilDir に対するバリデーション:
 
 - 絶対パス必須（`/` で始まること）
 - パストラバーサル排除（`..` を含まないこと）
-- 不正値は静かにフォールバック
+- 不正値は静かにアラート表示に移行
 
 ## 状態管理
 

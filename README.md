@@ -1,8 +1,8 @@
 # til-capture
 
-![version](https://img.shields.io/badge/version-0.3.0-blue)
+![version](https://img.shields.io/badge/version-1.0.0-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
-![tests](https://img.shields.io/badge/tests-41%20passing-brightgreen)
+![tests](https://img.shields.io/badge/tests-43%20passing-brightgreen)
 
 Claude Code セッション中の「学び」を TIL (Today I Learned) メモとしてキャプチャするプラグイン。
 
@@ -18,8 +18,10 @@ WebSearch や WebFetch を使った調査の後、セッション終了時に TI
 
 - **自動検知**: WebSearch/WebFetch を使った調査後、セッション終了時に TIL 記録を自動提案
 - **手動記録**: `/til-capture:til` コマンドでいつでも TIL を記録
+- **TIL 検索・一覧**: `/til-capture:til-list` で蓄積した TIL の検索・一覧表示・タグ集計
+- **タグ自動補完**: 既存 TIL のタグを抽出して新規 TIL のタグ表記を統一
 - **ストック表示**: セッション開始時に既存 TIL 数をリマインド
-- **柔軟な保存先**: CWD 内ディレクトリ → config.json → `~/til/` の優先順で自動解決
+- **意図的な保存先設定**: CWD 内ディレクトリ → config.json の 2 段階で保存先を解決（未設定時はアラート表示）
 - **信頼度ベースの確認**: 保存先の信頼度に応じてユーザー確認を制御
 - **セキュリティ**: 入力バリデーション、パストラバーサル対策、アトミックな状態管理
 
@@ -48,6 +50,16 @@ claude plugin add ~/src/github.com/qaTororo/til-capture
 /til-capture:til docker networking
 ```
 
+### TIL の検索・一覧表示
+
+蓄積した TIL を検索・ブラウズ:
+
+```
+/til-capture:til-list                  # 直近 10 件の一覧
+/til-capture:til-list search docker    # キーワードで全文検索
+/til-capture:til-list tags             # タグ別の件数を表示
+```
+
 ### 自動キャプチャ
 
 WebSearch や WebFetch を使って調査を行った後、セッション終了時に自動で TIL 記録を提案します。不要な場合はスキップできます。
@@ -55,7 +67,8 @@ WebSearch や WebFetch を使って調査を行った後、セッション終了
 保存先の信頼度（CWD 内の既存ディレクトリか、未確認のパスか）に応じて動作が変わります:
 
 - **高信頼**（CWD 内ディレクトリ or config の既存パス）: 保存先を明示して記録を実行
-- **低信頼**（未存在のパス or フォールバック）: ユーザーに保存先を確認してから記録
+- **低信頼**（未存在のパス）: ユーザーに保存先を確認してから記録
+- **未設定**: アラートを表示し、設定方法を案内（保存は行わない）
 
 ### セッション開始時の表示
 
@@ -65,13 +78,11 @@ WebSearch や WebFetch を使って調査を行った後、セッション終了
 TIL auto-capture: ON (WebSearch/WebFetch) | Stock: 42 entries (/path/to/til)
 ```
 
-TIL ディレクトリが未検出の場合（v0.3）:
+保存先が未設定の場合:
 
 ```
-TIL auto-capture: ON (WebSearch/WebFetch) | Save to: ~/til/ (will ask, configurable via ~/.config/til-capture/config.json)
+TIL auto-capture: ⚠ No save destination configured. Set defaultTilDir in ~/.config/til-capture/config.json or create a til/ directory in your project.
 ```
-
-> **v1.0 での変更予定**: `~/til/` フォールバックは削除されます。config.json で `defaultTilDir` を設定するか、プロジェクト内に `til/` ディレクトリを作成してください。
 
 ## 設定
 
@@ -99,7 +110,7 @@ EOF
 | 1 | CWD 内のプロジェクトディレクトリ (`src/content/til/` → `content/til/` → `til/`) | 高（確認なし） |
 | 2 | `config.json` の `defaultTilDir`（ディレクトリが存在する場合） | 高（確認なし） |
 | 2 | `config.json` の `defaultTilDir`（ディレクトリが存在しない場合） | 低（確認あり） |
-| 3 | `~/til/`（フォールバック） | 低（確認あり） |
+| — | 上記すべて該当なし | アラート表示（保存しない） |
 
 ## 生成されるファイル形式
 
@@ -146,16 +157,16 @@ npm test
 
 ## ロードマップ
 
-### v1.0（次期リリース）
+### v1.0（現行）
 
 - タグの自動補完 — 既存 TIL から抽出し、タグの一貫性を維持（F-102）
-- TIL 検索・一覧表示 — セッション内で過去の TIL を検索・ブラウズ（F-107）
+- TIL 検索・一覧表示 — `/til-list` でセッション内から過去の TIL を検索・ブラウズ（F-107）
 - 保存先の意図的な設定 — `~/til/` フォールバック削除、config.json の設定を推奨（ADR-004）
 
 ### v1.1+
 
-- TIL テンプレートのカスタマイズ
-- 既存 TIL との重複チェック
+- TIL テンプレートのカスタマイズ（F-101）
+- 既存 TIL との重複チェック（F-103）
 - 新規 Hook イベント活用（PostToolUse 等）
 
 ## ライセンス

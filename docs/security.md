@@ -31,14 +31,14 @@ fi
 
 # defaultTilDir の検証
 if [[ ! "$TIL_DIR" =~ ^/ ]] || [[ "$TIL_DIR" =~ \.\. ]]; then
-  TIL_DIR=""  # 静かにフォールバック
+  TIL_DIR=""  # 静かにアラート表示に移行
 fi
 ```
 
 ### 対象箇所
 
-- **Stop hook**: CWD（即座に終了）、defaultTilDir（フォールバック）
-- **SessionStart hook**: CWD（空文字に置換）、defaultTilDir（フォールバック）
+- **Stop hook**: CWD（即座に終了）、defaultTilDir（アラート表示に移行）
+- **SessionStart hook**: CWD（空文字に置換）、defaultTilDir（アラート表示に移行）
 
 ## 無限ループ防止
 
