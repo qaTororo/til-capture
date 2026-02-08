@@ -89,9 +89,19 @@ if [[ -z "$TIL_DIR" ]]; then
   fi
 fi
 
-# Step 3: フォールバック ~/til/ → 低信頼
+# ADR-004: 保存先未設定 → アラート表示（フォールバック削除）
 if [[ -z "$TIL_DIR" ]]; then
-  TIL_DIR="${HOME}/til"
+  REASON="学びが検知されましたが、保存先が設定されていません。
+~/.config/til-capture/config.json に defaultTilDir を設定するか、プロジェクト内に til/ ディレクトリを作成してください。"
+
+  jq -n \
+    --arg reason "$REASON" \
+    '{
+      "decision": "block",
+      "reason": $reason
+    }'
+
+  exit 0
 fi
 
 # 9. TIL抽出指示を出力（信頼度に応じてメッセージ分岐）

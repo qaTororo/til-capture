@@ -44,10 +44,13 @@ Step 1 で見つからない場合、`~/.config/til-capture/config.json` を Rea
 
 ファイルが存在しないまたは読み取りエラーの場合は無視して次へ。
 
-#### Step 3: フォールバック
-Step 1, 2 で保存先が決まらない場合、`~/til/` を候補とする。
-**必ずユーザーに保存先を確認してから保存すること。** 確認なしに `mkdir -p` で作成してはならない。
-（`~/.config/til-capture/config.json` で `defaultTilDir` を設定するよう案内する）
+#### 保存先が見つからない場合
+Step 1, 2 で保存先が決まらない場合、TIL の保存は行わない。
+ユーザーに以下を案内する:
+- `~/.config/til-capture/config.json` に `{"defaultTilDir": "/path/to/til"}` を設定する
+- またはプロジェクト内に `til/` ディレクトリを作成する
+
+設定方法が分からない場合は、ユーザーに保存先を聞いて config.json を生成する手助けをする。
 
 ### 3. ファイル生成
 

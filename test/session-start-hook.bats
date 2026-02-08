@@ -124,8 +124,8 @@ teardown() {
   [[ "$ctx" == *"will ask"* ]]
 }
 
-# --- 9. config.json なし → フォールバック表示 ---
-@test "config.json なし → ~/til/ フォールバック表示" {
+# --- 9. config.json なし + CWD に til/ なし → アラート表示 (ADR-004) ---
+@test "config.json なし + CWD に til/ なし → アラート表示" {
   local input
   input=$(generate_session_start_input "$TEST_CWD")
 
@@ -133,8 +133,19 @@ teardown() {
   [ "$status" -eq 0 ]
   local ctx
   ctx=$(echo "$output" | jq -r '.hookSpecificOutput.additionalContext')
-  [[ "$ctx" == *"~/til/"* ]]
-  [[ "$ctx" == *"configurable"* ]]
+  [[ "$ctx" == *"No save destination configured"* ]]
+  [[ "$ctx" == *"defaultTilDir"* ]]
+  [[ "$ctx" != *"Save to: ~/til/"* ]]
+}
+
+# --- 13. 保存先未設定でも hookEventName=SessionStart が出力される (ADR-004) ---
+@test "保存先未設定でも hookEventName=SessionStart が出力される" {
+  local input
+  input=$(generate_session_start_input "$TEST_CWD")
+
+  run bash -c "echo '$input' | bash '$HOOK_SCRIPT'"
+  [ "$status" -eq 0 ]
+  echo "$output" | jq -e '.hookSpecificOutput.hookEventName == "SessionStart"'
 }
 
 # --- 10. CWD ディレクトリが config より優先 ---

@@ -73,7 +73,7 @@ elif [[ -n "$DEFAULT_TIL_DIR" ]]; then
     STATUS="TIL auto-capture: ON (WebSearch/WebFetch) | Save to: ${DEFAULT_TIL_DIR} (will ask)"
   fi
 else
-  STATUS="TIL auto-capture: ON (WebSearch/WebFetch) | Save to: ~/til/ (will ask, configurable via ~/.config/til-capture/config.json)"
+  STATUS="TIL auto-capture: ⚠ No save destination configured. Set defaultTilDir in ~/.config/til-capture/config.json or create a til/ directory in your project."
 fi
 
 jq -n \

@@ -227,8 +227,8 @@ teardown() {
   [[ "$reason" == *"確認"* ]]
 }
 
-# --- 16. config.json なし → フォールバック ~/til/ ---
-@test "config.json なし → ~/til/ フォールバック、低信頼" {
+# --- 16. config.json なし + CWD に til/ なし → アラート表示 (ADR-004) ---
+@test "config.json なし + CWD に til/ なし → アラート表示" {
   local transcript
   transcript=$(create_transcript "WebSearch")
   local input
@@ -238,8 +238,9 @@ teardown() {
   [ "$status" -eq 0 ]
   local reason
   reason=$(echo "$output" | jq -r '.reason')
-  [[ "$reason" == *"${HOME}/til"* ]]
-  [[ "$reason" == *"確認"* ]]
+  [[ "$reason" == *"保存先が設定されていません"* ]]
+  [[ "$reason" == *"config.json"* ]]
+  [[ "$reason" != *"${HOME}/til"* ]]
 }
 
 # --- 17. CWD ディレクトリが config より優先 ---
@@ -277,8 +278,8 @@ teardown() {
   [[ "$reason" == *"保存先ディレクトリ ${TEST_CWD}/til"* ]]
 }
 
-# --- 19. 低信頼メッセージに保存先パスが含まれる ---
-@test "低信頼メッセージに保存先パスが含まれる" {
+# --- 19. 保存先未設定 → アラートメッセージに設定手順が含まれる (ADR-004) ---
+@test "保存先未設定 → アラートメッセージに設定手順が含まれる" {
   local transcript
   transcript=$(create_transcript "WebSearch")
   local input
@@ -288,8 +289,8 @@ teardown() {
   [ "$status" -eq 0 ]
   local reason
   reason=$(echo "$output" | jq -r '.reason')
-  [[ "$reason" == *"保存先候補: ${HOME}/til"* ]]
-  [[ "$reason" == *"${HOME}/til に保存してよいですか"* ]]
+  [[ "$reason" == *"defaultTilDir"* ]]
+  [[ "$reason" == *"til/"* ]]
 }
 
 # --- 20. 必須フィールド欠落 → 早期終了 ---
@@ -336,8 +337,8 @@ teardown() {
   [ -z "$output" ]
 }
 
-# --- 23. config.json のパストラバーサル → フォールバック ---
-@test "config.json にパストラバーサル → フォールバックで ~/til/" {
+# --- 23. config.json にパストラバーサル → アラート表示 (ADR-004) ---
+@test "config.json にパストラバーサル → アラート表示" {
   local transcript
   transcript=$(create_transcript "WebSearch")
   create_config "/tmp/../etc/evil"
@@ -348,12 +349,12 @@ teardown() {
   [ "$status" -eq 0 ]
   local reason
   reason=$(echo "$output" | jq -r '.reason')
-  # パストラバーサルが拒否され、フォールバック ~/til/ が使われる
-  [[ "$reason" == *"${HOME}/til"* ]]
+  [[ "$reason" == *"保存先が設定されていません"* ]]
+  [[ "$reason" != *"${HOME}/til"* ]]
 }
 
-# --- 24. config.json に相対パス → フォールバック ---
-@test "config.json に相対パス → フォールバックで ~/til/" {
+# --- 24. config.json に相対パス → アラート表示 (ADR-004) ---
+@test "config.json に相対パス → アラート表示" {
   local transcript
   transcript=$(create_transcript "WebSearch")
   create_config "relative/til"
@@ -364,5 +365,21 @@ teardown() {
   [ "$status" -eq 0 ]
   local reason
   reason=$(echo "$output" | jq -r '.reason')
-  [[ "$reason" == *"${HOME}/til"* ]]
+  [[ "$reason" == *"保存先が設定されていません"* ]]
+  [[ "$reason" != *"${HOME}/til"* ]]
+}
+
+# --- 25. 保存先未設定アラート → decision=block で出力 (ADR-004) ---
+@test "保存先未設定アラート → decision=block で出力される" {
+  local transcript
+  transcript=$(create_transcript "WebSearch")
+  local input
+  input=$(generate_stop_hook_input "$TEST_SESSION_ID" "$transcript" "$TEST_CWD" "false")
+
+  run bash -c "echo '$input' | bash '$HOOK_SCRIPT'"
+  [ "$status" -eq 0 ]
+  echo "$output" | jq -e '.decision == "block"'
+  local reason
+  reason=$(echo "$output" | jq -r '.reason')
+  [[ "$reason" == *"学びが検知されましたが"* ]]
 }
