@@ -99,9 +99,11 @@ CWD 内にディレクトリが見つからない場合、設定ファイルを�
 | `defaultTilDir` のディレクトリが存在する | 高 | stop-hook.bats #14 / session-start-hook.bats #7 |
 | `defaultTilDir` のディレクトリが存在しない | 低 | stop-hook.bats #15 / session-start-hook.bats #8 |
 
-### Step 3: フォールバック `~/til/`
+### Step 3: フォールバック `~/til/`（v1.0 で削除予定）
 
-Step 1, 2 で保存先が決まらない場合のデフォルト値。
+> **⚠ v1.0 変更予定（[ADR-004](../adr/ADR-004-directory-resolution-strategy.md)）**: フォールバック `~/til/` は v1.0 で削除される。CWD に `til/` がなく、config.json にも `defaultTilDir` が設定されていない場合は、アラートを表示して保存を行わない方針に変更。詳細は ADR-004 を参照。
+
+Step 1, 2 で保存先が決まらない場合のデフォルト値（v0.3 での動作）。
 
 | 項目 | 値 |
 |------|-----|
@@ -170,14 +172,24 @@ Step 1, 2 で保存先が決まらない場合のデフォルト値。
 
 ## v1.0 での変更予定
 
-Phase 4（[06-future-features.md](./06-future-features.md)）で詳細化予定:
+### 確定事項（ADR で決定済み）
+
+1. **フォールバック `~/til/` の削除**（[ADR-004](../adr/ADR-004-directory-resolution-strategy.md)）
+   - CWD `til/` も config.json `defaultTilDir` もない場合 → アラート表示、保存しない
+   - config.json が存在するが `defaultTilDir` が null/空 → アラート表示
+   - 初回オンボーディング: SessionStart hook で Claude にセットアップ支援を依頼する導線を追加
+
+2. **config.json `defaultTilDir` の実質必須化**（[ADR-004](../adr/ADR-004-directory-resolution-strategy.md)）
+   - CWD 内に `til/` がない環境では、config.json の設定が必須
+
+### v1.1+ で検討
 
 - **F-101: テンプレートカスタマイズ** — config.json の拡張（テンプレート設定の追加）
 - config.json スキーマの拡張可能性:
   ```jsonc
   {
-    "defaultTilDir": "/path/to/til",
-    "template": {              // F-101 で追加予定
+    "defaultTilDir": "/path/to/til",  // v1.0 で実質必須化
+    "template": {                      // F-101 で追加予定（v1.1+）
       "frontmatter": { ... },
       "sections": [ ... ]
     }

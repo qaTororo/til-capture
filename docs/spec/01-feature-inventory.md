@@ -68,18 +68,20 @@ CWD → config.json → フォールバック の優先順位で保存先を決�
 
 ## v1.0 候補機能
 
-| ID | 機能名 | 種別 | 優先度 | 複雑度 | 依存 | ステータス | 仕様 |
-|----|--------|------|--------|--------|------|-----------|------|
-| F-101 | テンプレートカスタマイズ | 設定拡張 | 高 | 中 | F-004 | `[Draft]` | [06-future-features.md](./06-future-features.md#f-101-テンプレートカスタマイズ) |
-| F-102 | タグ自動補完 | UX 改善 | 高 | 中 | F-003 | `[Draft]` | [06-future-features.md](./06-future-features.md#f-102-タグ自動補完) |
-| F-103 | 重複チェック | 品質向上 | 中 | 高 | F-001, F-003 | `[Draft]` | [06-future-features.md](./06-future-features.md#f-103-重複チェック) |
-| F-104 | PostToolUse(Write) 連携 | Hook 拡張 | 中 | 低 | F-001 | `[Draft]` | [06-future-features.md](./06-future-features.md#f-104-posttoolusewrit-連携) |
-| F-105 | UserPromptSubmit 連携 | Hook 拡張 | 低 | 低 | — | `[Draft]` | [06-future-features.md](./06-future-features.md#f-105-userpromptsubmit-連携) |
-| F-106 | PostToolUse(WebSearch) 連携 | Hook 拡張 | 中 | 中 | F-001 | `[Draft]` | [06-future-features.md](./06-future-features.md#f-106-posttooluse-websearch-連携) |
-| F-107 | TIL 検索・一覧表示 | Skill 追加 | 高 | 低 | F-004 | `[Draft]` | [06-future-features.md](./06-future-features.md#f-107-til-検索一覧表示) |
-| F-108 | Draft → Publish ワークフロー | UX 改善 | 低 | 中 | F-003 | `[Draft]` | [06-future-features.md](./06-future-features.md#f-108-draft--publish-ワークフロー) |
-| F-109 | エクスポート機能 | Skill 追加 | 低 | 中 | F-004 | `[Draft]` | [06-future-features.md](./06-future-features.md#f-109-エクスポート機能) |
-| F-110 | 統計・サマリー表示の強化 | UX 改善 | 中 | 低 | F-002 | `[Draft]` | [06-future-features.md](./06-future-features.md#f-110-統計サマリー表示の強化) |
+| ID | 機能名 | 種別 | リリース | 複雑度 | 依存 | ステータス | 仕様 |
+|----|--------|------|---------|--------|------|-----------|------|
+| F-102 | タグ自動補完 | UX 改善 | **v1.0** | 中 | F-003 | `[Accepted]` | [06-future-features.md](./06-future-features.md#f-102-タグ自動補完) |
+| F-107 | TIL 検索・一覧表示 | Skill 追加 | **v1.0** | 低 | F-004 | `[Accepted]` | [06-future-features.md](./06-future-features.md#f-107-til-検索一覧表示) |
+| F-101 | テンプレートカスタマイズ | 設定拡張 | v1.1+ | 中 | F-004 | `[Draft]` | [06-future-features.md](./06-future-features.md#f-101-テンプレートカスタマイズ) |
+| F-103 | 重複チェック | 品質向上 | v1.1+ | 高 | F-001, F-003 | `[Draft]` | [06-future-features.md](./06-future-features.md#f-103-重複チェック) |
+| F-104 | PostToolUse(Write) 連携 | Hook 拡張 | v1.1+ | 低 | F-001 | `[Draft]` | [06-future-features.md](./06-future-features.md#f-104-posttoolusewrit-連携) |
+| F-105 | UserPromptSubmit 連携 | Hook 拡張 | v2+ | 低 | — | `[Draft]` | [06-future-features.md](./06-future-features.md#f-105-userpromptsubmit-連携) |
+| F-106 | PostToolUse(WebSearch) 連携 | Hook 拡張 | v1.1+ | 中 | F-001 | `[Draft]` | [06-future-features.md](./06-future-features.md#f-106-posttooluse-websearch-連携) |
+| F-108 | Draft → Publish ワークフロー | UX 改善 | v2+ | 中 | F-003 | `[Draft]` | [06-future-features.md](./06-future-features.md#f-108-draft--publish-ワークフロー) |
+| F-109 | エクスポート機能 | Skill 追加 | v2+ | 中 | F-004 | `[Draft]` | [06-future-features.md](./06-future-features.md#f-109-エクスポート機能) |
+| F-110 | 統計・サマリー表示の強化 | UX 改善 | v1.1+ | 低 | F-002 | `[Draft]` | [06-future-features.md](./06-future-features.md#f-110-統計サマリー表示の強化) |
+
+> **決定根拠**: [ADR-002](../adr/ADR-002-v1-feature-priority.md)（v1.0 機能の優先順位）、[ADR-003](../adr/ADR-003-new-hook-event-strategy.md)（新規 Hook 慎重待機）
 
 ## 優先度マトリクス
 
@@ -91,27 +93,29 @@ CWD → config.json → フォールバック の優先順位で保存先を決�
 | **実装複雑度** | 実装に必要な工数・技術的難易度 | 高 / 中 / 低 |
 | **依存関係** | 他機能への依存・前提条件 | あり / なし |
 
-### マトリクス
+### マトリクス（ADR-002 で更新）
+
+> **価値の定義**: 「学びなおし・知識整理」への貢献度で評価（SSG 公開向け機能は降格）
 
 ```
-ユーザー価値: 高
+参照効率への貢献: 高
   ┌──────────────────────────────────────────┐
-  │  F-107 検索・一覧    │  F-101 テンプレート  │
-  │  (複雑度: 低)        │  F-102 タグ補完      │
-  │  ★ 優先実装          │  (複雑度: 中)        │
-  │                      │  ★ 優先実装          │
+  │  F-107 検索・一覧    │  F-102 タグ補完      │
+  │  (複雑度: 低)        │  (複雑度: 中)        │
+  │  ★ v1.0 確定         │  ★ v1.0 確定         │
   ├──────────────────────┼─────────────────────┤
-ユーザー価値: 中
-  │  F-104 Write連携     │  F-103 重複チェック  │
-  │  F-110 統計強化      │  F-106 WebSearch連携 │
+参照効率への貢献: 中
+  │  F-110 統計強化      │  F-103 重複チェック  │
+  │  F-104 Write連携     │  F-106 WebSearch連携 │
   │  (複雑度: 低)        │  (複雑度: 中〜高)    │
-  │  ◎ 次フェーズ        │  ◎ 次フェーズ        │
+  │  ◎ v1.1+             │  ◎ v1.1+             │
   ├──────────────────────┼─────────────────────┤
-ユーザー価値: 低
-  │  F-105 Prompt連携    │  F-108 Draft/Publish │
-  │  (複雑度: 低)        │  F-109 エクスポート  │
-  │  △ 余裕があれば      │  (複雑度: 中)        │
-  │                      │  △ 余裕があれば      │
+参照効率への貢献: 低（公開前提）
+  │  F-105 Prompt連携    │  F-101 テンプレート  │
+  │  (複雑度: 低)        │  F-108 Draft/Publish │
+  │  △ v2+               │  F-109 エクスポート  │
+  │                      │  (複雑度: 中)        │
+  │                      │  △ v1.1+ / v2+       │
   └──────────────────────┴─────────────────────┘
     実装複雑度: 低          実装複雑度: 中〜高
 ```

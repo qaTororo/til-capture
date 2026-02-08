@@ -12,7 +12,7 @@ til-capture は、Claude Code での調査・開発中に得た知識を自動�
 
 WebSearch や WebFetch を使った調査の後、セッション終了時に TIL 記録を自動で提案します。手動での記録にも対応しており、`/til-capture:til` コマンドでいつでも学びを保存できます。
 
-保存された TIL はフロントマター付きの Markdown ファイルで、ブログやナレッジベースにそのまま活用できます。
+保存された TIL はフロントマター付きの Markdown ファイルで、個人の知識整理や振り返りに活用できます。
 
 ## 機能
 
@@ -65,11 +65,13 @@ WebSearch や WebFetch を使って調査を行った後、セッション終了
 TIL auto-capture: ON (WebSearch/WebFetch) | Stock: 42 entries (/path/to/til)
 ```
 
-TIL ディレクトリが未検出の場合:
+TIL ディレクトリが未検出の場合（v0.3）:
 
 ```
 TIL auto-capture: ON (WebSearch/WebFetch) | Save to: ~/til/ (will ask, configurable via ~/.config/til-capture/config.json)
 ```
+
+> **v1.0 での変更予定**: `~/til/` フォールバックは削除されます。config.json で `defaultTilDir` を設定するか、プロジェクト内に `til/` ディレクトリを作成してください。
 
 ## 設定
 
@@ -144,9 +146,17 @@ npm test
 
 ## ロードマップ
 
+### v1.0（次期リリース）
+
+- タグの自動補完 — 既存 TIL から抽出し、タグの一貫性を維持（F-102）
+- TIL 検索・一覧表示 — セッション内で過去の TIL を検索・ブラウズ（F-107）
+- 保存先の意図的な設定 — `~/til/` フォールバック削除、config.json の設定を推奨（ADR-004）
+
+### v1.1+
+
 - TIL テンプレートのカスタマイズ
-- タグの自動補完（既存 TIL から抽出）
 - 既存 TIL との重複チェック
+- 新規 Hook イベント活用（PostToolUse 等）
 
 ## ライセンス
 

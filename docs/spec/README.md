@@ -42,6 +42,7 @@
 
 | ドキュメント | 役割 | 関係 |
 |-------------|------|------|
+| [ADR](../adr/README.md) | 設計判断の記録 (Why) | ADR の決定に基づいて Spec のステータスを昇格 |
 | [architecture.md](../architecture.md) | 実装の内部構造 (How) | 本 Spec から参照。実装詳細はそちらに記載 |
 | [security.md](../security.md) | セキュリティ対策 | 各機能仕様からセキュリティ要件として参照 |
 | [README.md](../../README.md) | ユーザー向け利用ガイド | Spec 確定後に v1.0 用に更新 |
