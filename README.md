@@ -1,10 +1,50 @@
-# til-capture
+# til-capture (Archived)
 
 ![version](https://img.shields.io/badge/version-1.1.0-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
-![tests](https://img.shields.io/badge/tests-47%20passing-brightgreen)
+![status](https://img.shields.io/badge/status-archived-lightgrey)
+
+> **This project has been archived.** The approach described below was found to be structurally flawed. See the postmortem for details.
 
 Claude Code セッション中の「学び」を TIL (Today I Learned) メモとしてキャプチャするプラグイン。
+
+---
+
+## Postmortem: なぜアーカイブしたか
+
+### 何を作ろうとしたか
+
+Claude Code で WebSearch/WebFetch を使って調査した際、得られた知識を自動的に TIL メモとして保存するプラグイン。「学びの瞬間を逃さない」が目標だった。
+
+### なぜ失敗したか
+
+**構造的矛盾**: 「学びを記録する」ために「学びを邪魔する」設計になっていた。
+
+1. **割り込みタイミングの問題** — Stop hook は「セッション終了時」ではなく「Claude の応答完了時」に発火する。ユーザーが調査結果を受け取って次の質問をしようとした瞬間に、TIL 記録の確認ダイアログが割り込む。
+2. **コンテキスト汚染** — TIL の保存先、タグ選択、内容確認といった会話がメインコンテキストに残り、直後の会話品質に影響する。Transformer の注意機構は直前の会話ターンに強くバイアスされるため、トークン量（全体の 1-2%）以上に質的な影響がある。
+3. **LLM 生成 TIL の価値の低さ** — TIL の本質は「自分の言葉で学びを整理する行為」そのものにある。LLM に委譲した時点で、記録の価値がゼロになる。
+4. **市場シグナル** — 同様のプラグインが世の中に存在しないのは、技術的に作れないからではなく、作っても価値がないから。
+
+### 学んだこと
+
+- **自動化すべきでないもの**がある。「手間を省く」と「価値を消す」が同義になるタスクは自動化してはいけない。
+- **Hook の発火タイミング**を正確に理解せずに設計すると、想定と実際の UX が大きく乖離する。
+- **init wizard を LLM 会話でやる**のは間違い。初回設定のような手続きはシェルの世界で完結させるべき。
+- ADR（Architecture Decision Record）を書く習慣は、失敗の原因分析を容易にする。このポストモーテムが書けるのは ADR のおかげ。
+
+### 技術的な収穫
+
+プラグインとしては失敗だが、開発過程で得た技術的知見は有用だった:
+
+- Claude Code プラグインアーキテクチャ（hooks, skills, config）の理解
+- bats-core による Shell スクリプトのテスト手法（47 テスト、完全隔離環境）
+- Hook の出力プロトコル（Stop: `{"decision":"block","reason":"..."}`, SessionStart: `{"hookSpecificOutput":{...}}`）
+- jq を使った JSON 処理パターン
+
+---
+
+<details>
+<summary>以下は v1.1.0 時点のドキュメント（参考）</summary>
 
 ## 概要
 
@@ -133,7 +173,7 @@ draft: true
 ...
 ```
 
-## Contributing
+## 開発
 
 ### 開発環境のセットアップ
 
@@ -159,23 +199,17 @@ npm test
 
 技術的な詳細は [docs/architecture.md](docs/architecture.md)、セキュリティ対策は [docs/security.md](docs/security.md) を参照してください。
 
-## ロードマップ
+## Architecture Decision Records
 
-### v1.0
+| ADR | 決定 |
+|-----|------|
+| [ADR-001](docs/adr/) | 信頼度ベースの確認/自動切り替え |
+| [ADR-002](docs/adr/) | F-102 + F-107 の 2 機能。TIL = 個人の知識整理ツール |
+| [ADR-003](docs/adr/) | 慎重待機。Stop + SessionStart のみ |
+| [ADR-004](docs/adr/) | ~/til/ フォールバック削除。config.json 実質必須化 |
+| [ADR-005](docs/adr/) | チーム利用対応（author）、F-103 永久除外、UX 改善は v1.2 |
 
-- タグの自動補完 — 既存 TIL から抽出し、タグの一貫性を維持（F-102）
-- TIL 検索・一覧表示 — `/til-list` でセッション内から過去の TIL を検索・ブラウズ（F-107）
-- 保存先の意図的な設定 — `~/til/` フォールバック削除、config.json の設定を推奨（ADR-004）
-
-### v1.1（現行）
-
-- チーム利用対応 — `author` フィールドの追加で「誰が書いたか」を記録（F-111）
-
-### v1.2+
-
-- UX 改善（コンテキスト汚染対策）
-- TIL テンプレートのカスタマイズ（F-101）
-- 新規 Hook イベント活用（PostToolUse 等）
+</details>
 
 ## ライセンス
 
